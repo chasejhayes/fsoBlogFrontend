@@ -11,7 +11,20 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState(null)
+  const [successMessage, setSuccessMessage] = useState(null)
   const [user, setUser] = useState(null)
+
+  const Notification = ({ message }) => {
+    if (message === null) {
+      return null
+    }
+
+    return (
+      <div className="error">
+        {message}
+      </div>
+    )
+  }
 
   const handleBlogChange = (event) => {
     setNewBlog(event.target.value)
@@ -34,14 +47,18 @@ const App = () => {
     }
 
     blogService
-    .create(blogObject)
-    .then(returnedBlog => {
-      setBlogs(blogs.concat(returnedBlog))
-      setNewBlog("")
-      setNewAuthor("")
-      setNewUrl("")
-      console.log(blogs)
-    }) 
+      .create(blogObject)
+      .then(returnedBlog => {
+        setBlogs(blogs.concat(returnedBlog))
+        setSuccessMessage(`'${returnedBlog.title}' by '${returnedBlog.author}' added!`)
+        setTimeout(() => {
+          setSuccessMessage(null)
+        }, 5000)
+
+        setNewBlog("")
+        setNewAuthor("")
+        setNewUrl("")
+      })
   }
 
   useEffect(() => {
@@ -89,6 +106,7 @@ const App = () => {
     return (
       <div>
         <h2>Log in to application</h2>
+        <Notification message={errorMessage} />
         <form onSubmit={handleLogin}>
           <div>
             <label>
@@ -126,12 +144,18 @@ const App = () => {
 
   )
 
+
+
   return (
     <div>
+
+
+
 
       <h2>blogs</h2>
       <User user={user} />
       <p></p>
+      <Notification message={successMessage} />
       <h2>create new</h2>
       <form onSubmit={addBlog}>
         <div>
