@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import BlogForm from './components/BlogForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -13,6 +14,7 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
   const [user, setUser] = useState(null)
+  const [blogFormVisible, setBlogFormVisible] = useState(false)
 
   const Notification = ({ message }) => {
     if (message === null) {
@@ -26,17 +28,7 @@ const App = () => {
     )
   }
 
-  const handleBlogChange = (event) => {
-    setNewBlog(event.target.value)
-  }
-
-  const handleAuthorChange = (event) => {
-    setNewAuthor(event.target.value)
-  }
-
-  const handleUrlChange = (event) => {
-    setNewUrl(event.target.value)
-  }
+ 
 
   const addBlog = (event) => {
     event.preventDefault()
@@ -60,6 +52,33 @@ const App = () => {
         setNewUrl("")
       })
   }
+
+  const blogForm = () => {
+    const hideWhenVisible = { display: blogFormVisible ? 'none' : '' }
+    const showWhenVisible = { display: blogFormVisible ? '' : 'none' }
+
+    return (
+      <div>
+        <div style={hideWhenVisible}>
+          <button onClick={() => setBlogFormVisible(true)}>add</button>
+        </div>
+        <div style={showWhenVisible}>
+          <BlogForm
+            newBlog={newBlog}
+            newAuthor={newAuthor}
+            newUrl={newUrl}
+            handleBlogChange={({ target }) => setNewBlog(target.value)}
+            handleAuthorChange={({ target }) => setNewAuthor(target.value)}
+            handleUrlChange={({ target }) => setNewUrl(target.value)}
+            addBlog={addBlog}
+          />
+          <button onClick={() => setBlogFormVisible(false)}>cancel</button>
+        </div>
+      </div>
+
+    )
+  }
+
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -100,6 +119,7 @@ const App = () => {
     window.localStorage.clear()
     location.reload()
   }
+
 
 
   if (user === null) {
@@ -156,28 +176,13 @@ const App = () => {
       <User user={user} />
       <p></p>
       <Notification message={successMessage} />
-      <h2>create new</h2>
-      <form onSubmit={addBlog}>
+    
+      {user && (
         <div>
-          <label>
-            Title:
-            <input value={newBlog} onChange={handleBlogChange} />
-          </label>
+          <p>{user.name} logged in</p>
+          {blogForm()}
         </div>
-        <div>
-          <label>
-            Author:
-            <input value={newAuthor} onChange={handleAuthorChange} />
-          </label>
-        </div>
-        <div>
-          <label>
-            Url:
-            <input value={newUrl} onChange={handleUrlChange} />
-          </label>
-        </div>
-        <button type="submit">save</button>
-      </form>
+      )}
 
 
       <h2>All</h2>
